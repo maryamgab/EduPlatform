@@ -98,7 +98,30 @@ pip install -r requirements.txt
 
 ### 4. Настройка переменных окружения
 
-В файле `.env` укажите свои параметры проекта.
+Создайтк файл `.env` и укажите свои параметры проекта.
+
+```env
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+DB_HOST=
+DB_PORT=
+
+EMAIL_HOST=
+EMAIL_PORT=465
+EMAIL_USE_SSL=True
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+DEFAULT_FROM_EMAIL=
+
+DJANGO_SECRET_KEY=
+
+TELEGRAM_BOT_USERNAME=
+TELEGRAM_LINK_SECRET=
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_BOT_POLL_TIMEOUT=30
+SITE_URL=http://127.0.0.1:8000
+```
 
 ### 5. Применение миграций
 
