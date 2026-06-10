@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Блоки урока{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="section-title" style="margin-bottom:0;">
+    <div>
+      <h1>Блоки урока: {{ lesson.title }}</h1>
+      <p>Добавляй, редактируй и упорядочивай содержимое урока в едином стиле платформы.</p>
+    </div>
+  </div>
+</div>
+
+<div class="grid" style="gap:24px;">
+  <section class="editor-card">
+    <div class="section-title">
+      <div>
+        <h2 style="margin-bottom:6px;">Добавить блок</h2>
+        <p>Заполни поля и сохрани новый элемент урока.</p>
+      </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="auth-form" id="addBlockForm" novalidate>
+      {% csrf_token %}
+
+      <div class="grid grid--two" style="gap:16px;">
+        <div class="field">
+          <label>Тип:</label>
+          {{ form.type }}
+        </div>
+
+        <div class="field">
+          <label>Позиция:</label>
+          {{ form.order }}
+        </div>
+      </div>
+
+      <div class="field js-text-section">
+        <label>Текст:</label>
+
+        <div class="rt-shell">
+          <div class="rt-toolbar rt-toolbar-add" data-hidden-id="{{ form.text.id_for_label }}">
+            <button type="button" data-size="14">A14</button>
+            <button type="button" data-size="16">A16</button>
+            <button type="button" data-size="20">A20</button>
+
+            <span class="rt-divider"></span>
+
+            <button type="button" data-cmd="bold"><b>B</b></button>
+            <button type="button" data-cmd="italic"><i>I</i></button>
+            <button type="button" data-cmd="underline"><u>U</u></button>
+
+            <span class="rt-divider"></span>
+
+            <button type="button" data-color="#000000" title="Чёрный" class="rt-color" style="--swatch:#000000;"></button>
+            <button type="button" data-color="#1D4ED8" title="Синий" class="rt-color" style="--swatch:#1D4ED8;"></button>
+            <button type="button" data-color="#15803D" title="Зелёный" class="rt-color" style="--swatch:#15803D;"></button>
+            <button type="button" data-color="#B91C1C" title="Красный" class="rt-color" style="--swatch:#B91C1C;"></button>
+          </div>
+
+          <div class="rt-editor rt-editor-add"
+              contenteditable="true"
+              spellcheck="false"
+              data-hidden-id="{{ form.text.id_for_label }}"></div>
+        </div>
+
+        <div style="display:none;">
+          {{ form.text }}
+        </div>
+        {% if form.text.errors %}<div class="err">{{ form.text.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field js-media-section">
+        <label>Файл:</label>
+        {{ form.file }}
+        {% if form.file.errors %}<div class="err">{{ form.file.errors }}</div>{% endif %}
+      </div>
+
+      <div class="actions-row" style="justify-content:flex-end;">
+        <button class="btn-primary" type="submit">Добавить</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="editor-card">
+    <div class="section-title">
+      <div>
+        <h2 style="margin-bottom:6px;">Текущие блоки</h2>
+        <p>Нажми на нужный блок, чтобы быстро подправить содержимое.</p>
+      </div>
+      <span class="badge badge--muted">{{ blocks|length }} шт.</span>
+    </div>
+
+    <div class="content-stack">
+      {% for b in blocks %}
+        <article class="rt-block-card">
+          <div class="rt-block-card__head">
+            <div>
+              <div class="badge badge--muted">#{{ b.order }}</div>
+              <h3 style="margin:10px 0 0;">{{ b.get_type_display }}</h3>
+            </div>
+            <div class="inline-actions">
+              <a class="btn btn-secondary" href="{% url 'lesson_block_edit' b.id %}">Редактировать</a>
+              <form method="post" action="{% url 'lesson_block_delete' b.id %}" style="margin:0;">
+                {% csrf_token %}
+                <button type="submit">Удалить</button>
+              </form>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;">
+            {% if b.type == "text" %}
+              <div class="rt-readonly">
+                {{ b.text|safe }}
+              </div>
+            {% else %}
+              {% include "courses/_block_render.html" with block=b %}
+            {% endif %}
+          </div>
+        </article>
+      {% empty %}
+        <p class="muted">Пока нет блоков.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+{% endblock %}
+
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/lesson-builder-manage.css' %}">{% endblock %}
+{% block extra_js %}<script src="{% static 'js/lesson-builder-manage.js' %}"></script>{% endblock %}

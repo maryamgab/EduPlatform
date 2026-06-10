@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="auth-card u-max-720">
+  {% if mode == "create" %}
+    <h1>Создать курс</h1>
+  {% else %}
+    <h1>Редактировать курс</h1>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="auth-form">
+    {% csrf_token %}
+
+    {% include "includes/_form_field.html" with field=form.title %}
+    {% include "includes/_form_field.html" with field=form.description %}
+    {% include "includes/_form_field.html" with field=form.avatar %}
+
+    <div class="field">
+      <label>{{ form.avatar_color.label }}</label>
+      <div class="avatar-colors">
+        {% for radio in form.avatar_color %}
+          <label class="color-option" title="{{ radio.choice_label }}">
+            {{ radio.tag }}
+            <span class="color-circle" data-swatch-color="{{ radio.data.value }}"></span>
+          </label>
+        {% endfor %}
+      </div>
+      {% if form.avatar_color.errors %}<div class="err">{{ form.avatar_color.errors }}</div>{% endif %}
+    </div>
+
+    {% include "includes/_form_field.html" with field=form.category %}
+
+    <div class="field">
+      {{ form.subcategory.label_tag }}
+      <select name="{{ form.subcategory.name }}" id="{{ form.subcategory.id_for_label }}" data-subcategory-select data-selected="{{ form.subcategory.value|default:'' }}">
+        {% for value, label in form.subcategory.field.choices %}
+          <option value="{{ value }}" {% if form.subcategory.value == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% if form.subcategory.errors %}<div class="err">{{ form.subcategory.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      <div class="checkbox-field">
+        <label class="checkbox-field__label" for="{{ form.is_published.id_for_label }}">{{ form.is_published.label }}</label>
+        {{ form.is_published }}
+      </div>
+      {% if form.is_published.errors %}<div class="err">{{ form.is_published.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      <div class="checkbox-field">
+        <label class="checkbox-field__label" for="{{ form.is_private.id_for_label }}">{{ form.is_private.label }}</label>
+        {{ form.is_private }}
+      </div>
+      {% if form.is_private.errors %}<div class="err">{{ form.is_private.errors }}</div>{% endif %}
+    </div>
+
+    <div class="privacy-card" data-private-course-panel>
+      <div class="privacy-card__head">
+        <div>
+          <h3>Настройки приватного курса</h3>
+          <p class="muted">Ученики смогут открыть курс только по коду и паролю.</p>
+        </div>
+        <button type="button" class="nav-chip nav-chip--primary" data-generate-access-code>Сгенерировать код</button>
+      </div>
+
+      {% include "includes/_form_field.html" with field=form.access_code help_text="Код можно сгенерировать автоматически или ввести вручную." %}
+      {% include "includes/_form_field.html" with field=form.access_password_plain help_text=form.access_password_plain.help_text %}
+    </div>
+
+    <button class="btn-primary" type="submit">Сохранить</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/course-privacy.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-card" style="max-width:900px;">
+  <h1>Вопрос #{{ q.order }}</h1>
+
+  <form method="post" class="auth-form" id="question-edit-form">
+    {% csrf_token %}
+
+    <div class="field">
+      {{ form.order.label_tag }}
+      {{ form.order }}
+      {% if form.order.errors %}<div class="err">{{ form.order.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      {{ form.type.label_tag }}
+      {{ form.type }}
+      {% if form.type.errors %}<div class="err">{{ form.type.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      {{ form.prompt.label_tag }}
+      {{ form.prompt }}
+      {% if form.prompt.errors %}<div class="err">{{ form.prompt.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      {{ form.points.label_tag }}
+      {{ form.points }}
+      {% if form.points.errors %}<div class="err">{{ form.points.errors }}</div>{% endif %}
+    </div>
+
+    <div class="js-text-only">
+      <div class="field">
+        {{ form.correct_text.label_tag }}
+        {{ form.correct_text }}
+        {% if form.correct_text.errors %}<div class="err">{{ form.correct_text.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field">
+        <div class="checkbox-field">
+          <label class="checkbox-field__label" for="{{ form.text_case_sensitive.id_for_label }}">
+            {{ form.text_case_sensitive.label }}
+          </label>
+          {{ form.text_case_sensitive }}
+        </div>
+        {% if form.text_case_sensitive.errors %}<div class="err">{{ form.text_case_sensitive.errors }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="js-choices-section" {% if q.type != "single" and q.type != "multi" %}style="display:none;"{% endif %}>
+      <h2>Варианты ответов</h2>
+
+      {{ choice_formset.management_form }}
+
+      <div id="choices-list">
+        {% for f in choice_formset %}
+          <div class="form-card js-choice-form">
+            {{ f.id }}
+
+            <div class="field">
+              <label for="{{ f.text.id_for_label }}">Текст</label>
+              {{ f.text }}
+            </div>
+
+            <div class="actions-row" style="margin-top:10px; gap:16px; align-items:center; justify-content:space-between;">
+              <div class="checkbox-field">
+                <label class="checkbox-field__label" for="{{ f.is_correct.id_for_label }}">Правильный</label>
+                {{ f.is_correct }}
+              </div>
+
+              {% if choice_formset.can_delete %}
+                <div style="display:none;">
+                  {{ f.DELETE }}
+                </div>
+                <button type="button" class="btn-secondary js-delete-choice">Удалить</button>
+              {% endif %}
+            </div>
+
+            {% for e in f.errors.values %}
+              <div class="err">{{ e }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="button" class="btn-primary" id="add-choice-btn">Добавить вариант</button>
+
+      <template id="choice-empty-form">
+        <div class="form-card js-choice-form">
+          __ID_FIELD__
+          <div class="field">
+            <label>Текст</label>
+            __TEXT_FIELD__
+          </div>
+
+          <div class="actions-row" style="margin-top:10px; gap:16px; align-items:center; justify-content:space-between;">
+            <div class="checkbox-field">
+              <label class="checkbox-field__label">Правильный</label>
+              __CORRECT_FIELD__
+            </div>
+
+            <div style="display:none;">__DELETE_FIELD__</div>
+            <button type="button" class="btn-secondary js-delete-choice">Удалить</button>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <div class="js-pairs-section" {% if q.type != "match" %}style="display:none;"{% endif %}>
+      <h2>Пары соответствий</h2>
+
+      {{ pair_formset.management_form }}
+
+      <div id="pairs-list">
+        {% for f in pair_formset %}
+          <div class="form-card js-pair-form">
+            {{ f.id }}
+
+            <div class="field">
+              <label for="{{ f.left_text.id_for_label }}">Левая часть</label>
+              {{ f.left_text }}
+            </div>
+
+            <div class="field">
+              <label for="{{ f.right_text.id_for_label }}">Правая часть</label>
+              {{ f.right_text }}
+            </div>
+
+            {% if pair_formset.can_delete %}
+              <div style="display:none;">
+                {{ f.DELETE }}
+              </div>
+              <div class="actions-row" style="margin-top:10px; justify-content:flex-end;">
+                <button type="button" class="btn-secondary js-delete-pair">Удалить</button>
+              </div>
+            {% endif %}
+
+            {% for e in f.errors.values %}
+              <div class="err">{{ e }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="button" class="btn-primary" id="add-pair-btn">Добавить пару</button>
+
+      <template id="pair-empty-form">
+        <div class="form-card js-pair-form">
+          __ID_FIELD__
+          <div class="field">
+            <label>Левая часть</label>
+            __LEFT_FIELD__
+          </div>
+
+          <div class="field">
+            <label>Правая часть</label>
+            __RIGHT_FIELD__
+          </div>
+
+          <div style="display:none;">__DELETE_FIELD__</div>
+          <div class="actions-row" style="margin-top:10px; justify-content:flex-end;">
+            <button type="button" class="btn-secondary js-delete-pair">Удалить</button>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <button class="btn-primary" type="submit">Сохранить</button>
+  </form>
+
+  <p class="muted"><a href="{% url 'quiz_manage' q.quiz.lesson_id %}">Назад к тесту</a></p>
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById('question-edit-form');
+  if (!form) return;
+
+  const typeSelect = form.querySelector('[name="type"]');
+  const textOnly = form.querySelector('.js-text-only');
+  const choicesSection = form.querySelector('.js-choices-section');
+  const pairsSection = form.querySelector('.js-pairs-section');
+
+  function toggleSections() {
+    const value = typeSelect ? typeSelect.value : '';
+    const isText = value === 'text';
+    const isChoice = value === 'single' || value === 'multi';
+    const isMatch = value === 'match';
+
+    if (textOnly) textOnly.style.display = isText ? '' : 'none';
+    if (choicesSection) choicesSection.style.display = isChoice ? '' : 'none';
+    if (pairsSection) pairsSection.style.display = isMatch ? '' : 'none';
+  }
+
+  if (typeSelect) {
+    typeSelect.addEventListener('change', toggleSections);
+    toggleSections();
+  }
+
+  function setupDeleteButtons(containerSelector, cardSelector, deleteBtnSelector) {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+
+    container.addEventListener('click', function (e) {
+      const btn = e.target.closest(deleteBtnSelector);
+      if (!btn) return;
+
+      const card = btn.closest(cardSelector);
+      if (!card) return;
+
+      const deleteInput = card.querySelector('input[type="checkbox"][name$="-DELETE"]');
+      if (deleteInput) {
+        deleteInput.checked = true;
+        card.style.display = 'none';
+      } else {
+        card.remove();
+      }
+    });
+  }
+
+  setupDeleteButtons('#choices-list', '.js-choice-form', '.js-delete-choice');
+  setupDeleteButtons('#pairs-list', '.js-pair-form', '.js-delete-pair');
+
+  function addForm(prefix, listId, totalId, templateId, replacements) {
+    const list = document.getElementById(listId);
+    const total = document.getElementById(totalId);
+    const template = document.getElementById(templateId);
+
+    if (!list || !total || !template) return;
+
+    let index = parseInt(total.value, 10) || 0;
+    let html = template.innerHTML;
+
+    replacements.forEach(function (item) {
+      html = html.replace(item.token, item.value.replace(/__prefix__/g, prefix + '-' + index));
+    });
+
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html.trim();
+    list.appendChild(wrapper.firstElementChild);
+    total.value = index + 1;
+  }
+
+  const addChoiceBtn = document.getElementById('add-choice-btn');
+  if (addChoiceBtn) {
+    addChoiceBtn.addEventListener('click', function () {
+      addForm(
+        'choices',
+        'choices-list',
+        'id_choices-TOTAL_FORMS',
+        'choice-empty-form',
+        [
+          { token: '__ID_FIELD__', value: '<input type="hidden" name="__prefix__-id" id="id___prefix__-id">' },
+          { token: '__TEXT_FIELD__', value: '<input type="text" name="__prefix__-text" maxlength="255" id="id___prefix__-text">' },
+          { token: '__CORRECT_FIELD__', value: '<input type="checkbox" name="__prefix__-is_correct" id="id___prefix__-is_correct">' },
+          { token: '__DELETE_FIELD__', value: '<input type="checkbox" name="__prefix__-DELETE" id="id___prefix__-DELETE">' }
+        ]
+      );
+    });
+  }
+
+  const addPairBtn = document.getElementById('add-pair-btn');
+  if (addPairBtn) {
+    addPairBtn.addEventListener('click', function () {
+      addForm(
+        'pairs',
+        'pairs-list',
+        'id_pairs-TOTAL_FORMS',
+        'pair-empty-form',
+        [
+          { token: '__ID_FIELD__', value: '<input type="hidden" name="__prefix__-id" id="id___prefix__-id">' },
+          { token: '__LEFT_FIELD__', value: '<input type="text" name="__prefix__-left_text" maxlength="255" id="id___prefix__-left_text">' },
+          { token: '__RIGHT_FIELD__', value: '<input type="text" name="__prefix__-right_text" maxlength="255" id="id___prefix__-right_text">' },
+          { token: '__DELETE_FIELD__', value: '<input type="checkbox" name="__prefix__-DELETE" id="id___prefix__-DELETE">' }
+        ]
+      );
+    });
+  }
+})();
+</script>
+{% endblock %}

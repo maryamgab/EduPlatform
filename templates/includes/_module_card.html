@@ -1,0 +1,24 @@
+<details class="details-card module" open>
+  <summary class="module-title">
+    <span class="module-title__text">{{ module.order }}. {{ module.title }}</span>
+  </summary>
+
+  <div class="details-card__body">
+    <div class="inline-actions course-edit__module-actions">
+      <a class="nav-chip" href="{% url 'lesson_create_with_blocks' module_id=module.id %}">+ Урок с блоками</a>
+    </div>
+
+    <div class="table-like">
+      {% for lesson in module.lessons.all %}
+        <article class="lesson-item">
+          <div class="lesson-title">
+            <span class="lesson-title__text">{{ lesson.order }}. {{ lesson.title }}</span>
+          </div>
+          {% include "includes/_lesson_actions.html" with lesson=lesson %}
+        </article>
+      {% empty %}
+        <p class="muted">Пока нет уроков.</p>
+      {% endfor %}
+    </div>
+  </div>
+</details>

@@ -1,0 +1,25 @@
+<div class="lesson-actions">
+  <a class="nav-chip" href="{% url 'attachment_add' lesson_id=lesson.id %}">Файл</a>
+  <a class="nav-chip" href="{% url 'lesson_blocks_manage' lesson_id=lesson.id %}">Контент</a>
+  <a class="nav-chip" href="{% url 'quiz_manage' lesson_id=lesson.id %}">Тест</a>
+
+  <form method="post" action="{% url 'lesson_move' lesson.id 'up' %}">
+    {% csrf_token %}
+    <button type="submit" class="lesson-move-btn" title="Поднять урок">↑</button>
+  </form>
+
+  <form method="post" action="{% url 'lesson_move' lesson.id 'down' %}">
+    {% csrf_token %}
+    <button type="submit" class="lesson-move-btn" title="Опустить урок">↓</button>
+  </form>
+
+  <form method="post" action="{% url 'lesson_delete' lesson.id %}">
+    {% csrf_token %}
+    <button
+      type="submit"
+      class="lesson-delete-btn"
+      title="Удалить урок"
+      onclick="return confirm('Удалить урок «{{ lesson.title }}»?')"
+    >🗑</button>
+  </form>
+</div>

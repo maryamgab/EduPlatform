@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Ученики курса{% endblock %}
+{% block content %}
+<div class="page-hero progress-page">
+  <h1>Ученики курса</h1>
+  <p><b>Курс:</b> {{ course.title }} {% if course.is_private %}<span class="badge badge--muted">Приватный</span>{% else %}<span class="badge badge--success">Публичный</span>{% endif %}</p>
+  <p><a href="{% url 'course_edit' course_id=course.id %}">← Назад к курсу</a></p>
+</div>
+
+<div class="progress-summary">
+  <div class="stat-card">
+    <p class="muted">Записано учеников</p>
+    <h2>{{ enrollments_count }}</h2>
+  </div>
+  <div class="stat-card">
+    <p class="muted">Всего уроков</p>
+    <h2>{{ total_lessons }}</h2>
+  </div>
+  <div class="stat-card">
+    <p class="muted">Всего тестов</p>
+    <h2>{{ total_tests }}</h2>
+  </div>
+</div>
+
+<div class="list-card progress-table-wrap">
+  <div class="section-title">
+    <div>
+      <h2>Все записанные ученики</h2>
+      <p>Список доступен и для обычных, и для приватных курсов.</p>
+    </div>
+  </div>
+
+  <table class="progress-table">
+    <thead>
+      <tr>
+        <th>Ученик</th>
+        <th>Логин</th>
+        <th>Дата записи</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for enrollment in enrollments %}
+        <tr>
+          <td>
+            <div class="progress-student-meta">
+              <strong>{% if enrollment.user.profile.full_name %}{{ enrollment.user.profile.full_name }}{% else %}{{ enrollment.user.username }}{% endif %}</strong>
+              {% if enrollment.user.email %}<span class="muted">{{ enrollment.user.email }}</span>{% endif %}
+            </div>
+          </td>
+          <td>{{ enrollment.user.username }}</td>
+          <td>{{ enrollment.created_at|date:"d.m.Y H:i" }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="3">На курс пока никто не записан</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="list-card progress-table-wrap">
+  <div class="section-title">
+    <div>
+      <h2>Прогресс учеников</h2>
+      <p>Статистика по урокам, тестам и общему прохождению.</p>
+    </div>
+  </div>
+
+  <table class="progress-table">
+    <thead>
+      <tr>
+        <th>Ученик</th>
+        <th>Уроки</th>
+        <th>Тесты</th>
+        <th>Общий прогресс</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in students_progress %}
+        <tr>
+          <td>{% if item.user.profile.full_name %}{{ item.user.profile.full_name }}{% else %}{{ item.user.username }}{% endif %}</td>
+          <td>{{ item.lessons_done }} / {{ item.lessons_total }}</td>
+          <td>{{ item.tests_done }} / {{ item.tests_total }}</td>
+          <td>
+            <div class="progress-percent">{{ item.percent }}%</div>
+            <div class="progress"><span class="progress__fill" data-progress-value="{{ item.percent }}"></span></div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4">На курс пока никто не записан</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

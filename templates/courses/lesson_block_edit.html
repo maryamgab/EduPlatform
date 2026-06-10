@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Редактирование блока{% endblock %}
+
+{% block content %}
+<div class="page-wrap page-wrap--block-edit">
+  <div class="auth-card block-edit-hero">
+    <div class="page-header">
+      <div>
+        <h1>Редактирование блока</h1>
+        <p class="muted">Измени содержимое блока и сохрани обновления.</p>
+      </div>
+      <a href="{{ back_url|default:'javascript:history.back()' }}" class="btn-secondary">Назад</a>
+    </div>
+  </div>
+
+<form method="post" enctype="multipart/form-data" id="blockForm" class="auth-form" novalidate>
+  {% csrf_token %}
+
+  <div class="field">
+    <label>Тип блока</label>
+    {{ form.type }}
+    {% if form.type.errors %}<div class="err">{{ form.type.errors }}</div>{% endif %}
+  </div>
+
+  <div class="field">
+    <label>Порядок</label>
+    {{ form.order }}
+    {% if form.order.errors %}<div class="err">{{ form.order.errors }}</div>{% endif %}
+  </div>
+
+  <div class="field js-text-section">
+    <label>Текст блока</label>
+
+    <div class="rt-shell">
+      <div id="rtToolbar" class="rt-toolbar">
+        <button type="button" data-size="14">A14</button>
+        <button type="button" data-size="16">A16</button>
+        <button type="button" data-size="20">A20</button>
+
+        <span class="rt-divider"></span>
+
+        <button type="button" data-cmd="bold"><b>B</b></button>
+        <button type="button" data-cmd="italic"><i>I</i></button>
+        <button type="button" data-cmd="underline"><u>U</u></button>
+
+        <span class="rt-divider"></span>
+
+        <button type="button" data-color="#000000" title="Чёрный" class="rt-color" style="--swatch:#000000;"></button>
+        <button type="button" data-color="#1D4ED8" title="Синий" class="rt-color" style="--swatch:#1D4ED8;"></button>
+        <button type="button" data-color="#15803D" title="Зелёный" class="rt-color" style="--swatch:#15803D;"></button>
+        <button type="button" data-color="#B91C1C" title="Красный" class="rt-color" style="--swatch:#B91C1C;"></button>
+      </div>
+
+      <div id="rtEditor"
+           class="rt-editor"
+           contenteditable="true"
+           spellcheck="false"></div>
+    </div>
+
+    <div style="display:none;">
+      {{ form.text }}
+    </div>
+    {% if form.text.errors %}<div class="err">{{ form.text.errors }}</div>{% endif %}
+  </div>
+
+  <div class="field js-media-section">
+    <label>Файл</label>
+    {{ form.file }}
+    {% if form.file.errors %}<div class="err">{{ form.file.errors }}</div>{% endif %}
+  </div>
+
+  <div class="actions-row" style="justify-content:flex-end; margin-top:8px;">
+    <button class="btn-primary" type="submit">Сохранить</button>
+  </div>
+</form>
+</div>
+{% endblock %}
+
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/lesson-builder-block-edit.css' %}">{% endblock %}
+{% block extra_js %}<script src="{% static 'js/lesson-builder-block-edit.js' %}"></script>{% endblock %}

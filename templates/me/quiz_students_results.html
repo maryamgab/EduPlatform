@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/quiz-results.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="results-page">
+  <section class="results-hero">
+    <div class="results-hero__content">
+      <p class="results-hero__eyebrow">Статистика теста</p>
+      <h1>Результаты учеников</h1>
+      <p class="results-hero__text">
+        Показаны только лучшие попытки каждого ученика.
+      </p>
+    </div>
+
+    <a href="{% url 'quiz_manage' lesson.id %}" class="results-back-btn">← Назад к тесту</a>
+  </section>
+
+  <section class="results-meta-card">
+    <div class="results-meta">
+      <div class="results-meta__item">
+        <span class="results-meta__label">Урок</span>
+        <div class="results-meta__value">{{ lesson.title }}</div>
+      </div>
+
+      <div class="results-meta__item">
+        <span class="results-meta__label">Тест</span>
+        <div class="results-meta__value">{{ quiz.title }}</div>
+      </div>
+
+      <div class="results-meta__item">
+        <span class="results-meta__label">Всего результатов</span>
+        <div class="results-meta__value">{{ attempts|length }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="results-table-card">
+    {% if attempts %}
+      <div class="results-table-wrap">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Ученик</th>
+              <th>Дата</th>
+              <th>Результат</th>
+              <th>Процент</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for attempt in attempts %}
+              <tr>
+                <td>
+                  <div class="student-cell">
+                    <div class="student-avatar">
+                      {{ attempt.user.username|default:"?"|slice:":1"|upper }}
+                    </div>
+                    <div class="student-info">
+                      <div class="student-name">
+                        {% if attempt.user.profile.full_name %}
+                          {{ attempt.user.profile.full_name }}
+                        {% else %}
+                          {{ attempt.user.username }}
+                        {% endif %}
+                      </div>
+                      <div class="student-subtitle">
+                        {{ attempt.user.username }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="muted-value">
+                    {{ attempt.created_at|date:"d.m.Y H:i" }}
+                  </span>
+                </td>
+
+                <td>
+                <div class="result-cell">
+                  <span class="score-badge">
+                    {{ attempt.score }} / {{ attempt.max_score }}
+                  </span>
+
+                  {% if attempt.is_late %}
+                    <span class="status-badge status-badge--warning">Просрочено</span>
+                  {% endif %}
+                </div>
+              </td>
+
+                <td>
+                  <div class="percent-cell">
+                    <div class="progress-line">
+                      <div
+                        class="progress-line__fill progress-line__fill--{{ attempt.percent_level }}"
+                        style="width: {{ attempt.percent_value }}%;"
+                      ></div>
+                    </div>
+
+                    <span class="percent-value percent-value--{{ attempt.percent_level }}">
+                      {{ attempt.percent_value }}%
+                    </span>
+                  </div>
+                </td>
+
+                <td>
+                  <a href="{% url 'quiz_student_attempt_detail' attempt.id %}" class="results-open-btn">Открыть</a>
+                </td>
+
+
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="results-empty">
+        <div class="results-empty__icon">📊</div>
+        <h3>Пока нет результатов</h3>
+        <p>Никто ещё не проходил этот тест.</p>
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

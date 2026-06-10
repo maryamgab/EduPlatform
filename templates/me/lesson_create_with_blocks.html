@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="auth-card" style="max-width:900px;">
+  <h1>Создать урок (с блоками)</h1>
+  <p class="muted">Модуль: {{ module.title }}</p>
+
+  {% if messages %}
+    {% for m in messages %}
+      <div class="alert">{{ m }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="auth-form">
+    {% csrf_token %}
+
+    <h2 style="margin:0;">Данные урока</h2>
+
+    <div class="field" style="margin-bottom:12px;">
+      <label>Номер урока</label>
+      <input type="text" value="Урок №{{ next_lesson_order }}" disabled>
+    </div>
+
+    {{ lesson_form.as_p }}
+
+    <hr style="margin:18px 0; border:none; border-top:1px solid #e7e7ee;">
+
+    <h2 style="margin:0 0 10px;">Блоки урока</h2>
+
+    {{ formset.management_form }}
+
+    <div id="lesson-blocks">
+    {% for f in formset %}
+      <div class="lesson-block-item" style="border:1px solid #e7e7ee; border-radius:12px; padding:12px; margin:10px 0;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <div style="min-width:180px;">
+            <label>Тип</label><br>
+            {{ f.type }}
+          </div>
+
+          <div style="width:120px;">
+            <label>Порядок</label><br>
+            {{ f.order }}
+          </div>
+
+          {% if f.instance.pk %}
+            <div class="muted">ID: {{ f.instance.pk }}</div>
+          {% endif %}
+        </div>
+
+        <div class="block-editor__section js-text-section" style="margin-top:10px;">
+          <label>Текст</label>
+
+          <div class="rt-shell">
+            <div class="rt-toolbar-add" data-hidden-id="{{ f.text.id_for_label }}">
+              <button type="button" data-size="14">A14</button>
+              <button type="button" data-size="16">A16</button>
+              <button type="button" data-size="20">A20</button>
+
+              <span class="rt-divider"></span>
+
+              <button type="button" data-cmd="bold"><b>B</b></button>
+              <button type="button" data-cmd="italic"><i>I</i></button>
+              <button type="button" data-cmd="underline"><u>U</u></button>
+
+              <span class="rt-divider"></span>
+
+              <button type="button" data-color="#000000" title="Чёрный" class="rt-color" style="--swatch:#000000;"></button>
+              <button type="button" data-color="#1D4ED8" title="Синий" class="rt-color" style="--swatch:#1D4ED8;"></button>
+              <button type="button" data-color="#15803D" title="Зелёный" class="rt-color" style="--swatch:#15803D;"></button>
+              <button type="button" data-color="#B91C1C" title="Красный" class="rt-color" style="--swatch:#B91C1C;"></button>
+            </div>
+
+            <div class="rt-editor rt-editor-add"
+                contenteditable="true"
+                spellcheck="false"
+                data-hidden-id="{{ f.text.id_for_label }}">{{ f.text.value|default_if_none:""|safe }}</div>
+          </div>
+
+          <div style="display:none;">
+            {{ f.text }}
+          </div>
+
+          {% if f.text.errors %}<div class="err">{{ f.text.errors }}</div>{% endif %}
+        </div>
+
+        <div class="block-editor__section js-media-section" style="margin-top:10px;">
+          <label>Файл (картинка/gif/аудио/видео)</label><br>
+          {{ f.file }}
+          {% if f.file.errors %}<div class="err">{{ f.file.errors }}</div>{% endif %}
+        </div>
+
+
+        {% if formset.can_delete %}
+          <div style="margin-top:12px; display:flex; justify-content:flex-end;">
+            <button type="button" class="btn-delete-block">Удалить блок</button>
+            <div style="display:none;">
+              {{ f.DELETE }}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if f.non_field_errors %}
+          <div class="err">{{ f.non_field_errors }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="margin-top:12px; display:flex; gap:10px;">
+      <button type="button" id="add-block-btn" class="btn-secondary">+ Добавить блок</button>
+    </div>
+
+      <template id="empty-block-template">
+      <div class="lesson-block-item" style="border:1px solid #e7e7ee; border-radius:12px; padding:12px; margin:10px 0;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <div style="min-width:180px;">
+            <label>Тип</label><br>
+            {{ formset.empty_form.type }}
+          </div>
+
+          <div style="width:120px;">
+            <label>Порядок</label><br>
+            {{ formset.empty_form.order }}
+          </div>
+        </div>
+
+        <div class="block-editor__section js-text-section" style="margin-top:10px;">
+          <label>Текст</label>
+
+          <div class="rt-shell">
+            <div class="rt-toolbar-add" data-hidden-id="{{ formset.empty_form.text.id_for_label }}">
+              <button type="button" data-size="14">A14</button>
+              <button type="button" data-size="16">A16</button>
+              <button type="button" data-size="20">A20</button>
+
+              <span class="rt-divider"></span>
+
+              <button type="button" data-cmd="bold"><b>B</b></button>
+              <button type="button" data-cmd="italic"><i>I</i></button>
+              <button type="button" data-cmd="underline"><u>U</u></button>
+
+              <span class="rt-divider"></span>
+
+              <button type="button" data-color="#000000" title="Чёрный" class="rt-color" style="--swatch:#000000;"></button>
+              <button type="button" data-color="#1D4ED8" title="Синий" class="rt-color" style="--swatch:#1D4ED8;"></button>
+              <button type="button" data-color="#15803D" title="Зелёный" class="rt-color" style="--swatch:#15803D;"></button>
+              <button type="button" data-color="#B91C1C" title="Красный" class="rt-color" style="--swatch:#B91C1C;"></button>
+            </div>
+
+            <div class="rt-editor rt-editor-add"
+                contenteditable="true"
+                spellcheck="false"
+                data-hidden-id="{{ formset.empty_form.text.id_for_label }}"></div>
+          </div>
+
+          <div style="display:none;">
+            {{ formset.empty_form.text }}
+          </div>
+        </div>
+
+        <div class="block-editor__section js-media-section" style="margin-top:10px;">
+          <label>Файл (картинка/gif/аудио/видео)</label><br>
+          {{ formset.empty_form.file }}
+        </div>
+
+        {% if formset.can_delete %}
+          <div style="margin-top:12px; display:flex; justify-content:flex-end;">
+            <button type="button" class="btn-delete-block">Удалить блок</button>
+            <div style="display:none;">
+              {{ formset.empty_form.DELETE }}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </template>
+
+    <button class="btn-primary" type="submit">Сохранить урок</button>
+  </form>
+</div>
+
+{% endblock %}
+
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/lesson-builder-create.css' %}">{% endblock %}
+{% block extra_js %}<script src="{% static 'js/lesson-builder-create.js' %}"></script>{% endblock %}

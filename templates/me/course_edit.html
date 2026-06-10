@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Редактирование курса{% endblock %}
+
+{% block content %}
+{% url 'course_students_progress' slug=course.slug as progress_url %}
+{% url 'course_delete' course.id as delete_url %}
+
+<div class="page-hero">
+  <div class="section-title course-edit__header">
+    <div>
+      <h1>Редактирование курса</h1>
+      <p>Настройте описание, аватар, публикацию и структуру курса.</p>
+    </div>
+    {% include "includes/_header_actions.html" with link_url=progress_url link_label="Ученики курса" delete_action=delete_url delete_title="Удалить курс" delete_confirm="Удалить курс нельзя отменить. Продолжить?" %}
+  </div>
+</div>
+
+<div class="course-edit__layout">
+  <section class="editor-card editor-block">
+    <div class="course-edit__main-head">
+      <div>
+        <h2>Основная информация</h2>
+      </div>
+      {% if course.avatar %}
+        <div class="actions-row course-avatar-preview">
+          <div class="course-avatar" data-avatar-color="{{ course.avatar_color|default:'#334155' }}">
+            <img src="{{ course.avatar.url }}" alt="{{ course.title }}">
+          </div>
+          <span class="muted">Текущая аватарка курса</span>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if course.avatar %}
+      <form method="post" class="avatar-delete-form inline-form u-mt-2">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete_avatar">
+        <button type="submit" class="btn-danger btn-danger--sm">Удалить аватар</button>
+      </form>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="styled-form">
+      {% csrf_token %}
+
+      <div class="field">
+        <label>Аватар:</label>
+        {% if course.avatar %}
+          <div class="avatar-current-row">
+            <div class="avatar-current-row__left">
+              <a href="{{ course.avatar.url }}" target="_blank">Текущий файл</a>
+              <span class="muted">Чтобы заменить аватар, сначала удалите текущий.</span>
+            </div>
+          </div>
+        {% else %}
+          {{ form.avatar }}
+          {% if form.avatar.errors %}<div class="err">{{ form.avatar.errors }}</div>{% endif %}
+        {% endif %}
+      </div>
+
+      {% if not course.avatar %}
+        <div class="field">
+          <label>{{ form.avatar_color.label }}</label>
+          <div class="avatar-colors">
+            {% for radio in form.avatar_color %}
+              <label class="color-option">
+                {{ radio.tag }}
+                <span class="color-circle" data-swatch-color="{{ radio.data.value }}"></span>
+              </label>
+            {% endfor %}
+          </div>
+          {% if form.avatar_color.errors %}<div class="err">{{ form.avatar_color.errors }}</div>{% endif %}
+        </div>
+      {% endif %}
+
+      {% include "includes/_form_field.html" with field=form.title %}
+      {% include "includes/_form_field.html" with field=form.description %}
+      {% include "includes/_form_field.html" with field=form.category %}
+      {% include "includes/_form_field.html" with field=form.subcategory %}
+
+      <div class="checkbox-field-wrap">
+        <div class="checkbox-field">
+          <label class="checkbox-field__label" for="{{ form.is_published.id_for_label }}">{{ form.is_published.label }}</label>
+          {{ form.is_published }}
+        </div>
+        {% if form.is_published.errors %}<div class="err">{{ form.is_published.errors }}</div>{% endif %}
+      </div>
+
+      <div class="checkbox-field-wrap">
+        <div class="checkbox-field">
+          <label class="checkbox-field__label" for="{{ form.is_private.id_for_label }}">{{ form.is_private.label }}</label>
+          {{ form.is_private }}
+        </div>
+        {% if form.is_private.errors %}<div class="err">{{ form.is_private.errors }}</div>{% endif %}
+      </div>
+
+      <div class="privacy-card" data-private-course-panel>
+        <div class="privacy-card__head">
+          <div>
+            <h3>Настройки приватного курса</h3>
+            <p class="muted">Делитесь кодом и паролем только с теми, кому хотите открыть доступ.</p>
+          </div>
+          <button type="button" class="nav-chip nav-chip--primary" data-generate-access-code>Сгенерировать код</button>
+        </div>
+
+        {% include "includes/_form_field.html" with field=form.access_code help_text="Этот код нужен ученикам для поиска приватного курса." %}
+        {% include "includes/_form_field.html" with field=form.access_password_plain help_text=form.access_password_plain.help_text %}
+
+        {% if course.is_private and course.access_code %}
+          <div class="alert alert--success">Текущий код доступа: <b>{{ course.access_code }}</b></div>
+        {% endif %}
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Сохранить</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="editor-card">
+    <div class="section-title">
+      <div>
+        <h2>Программа</h2>
+        <p>Добавляйте модули, уроки, блоки контента и тесты.</p>
+      </div>
+      <a class="nav-chip nav-chip--primary" href="{% url 'module_add' course_id=course.id %}">+ Добавить модуль</a>
+    </div>
+
+    {% for module in modules %}
+      {% include "includes/_module_card.html" with module=module %}
+    {% empty %}
+      <p class="muted">Добавьте первый модуль, чтобы начать собирать программу курса.</p>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/course-privacy.js' %}"></script>
+{% endblock %}

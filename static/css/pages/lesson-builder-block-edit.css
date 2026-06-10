@@ -1,0 +1,34 @@
+.rt-page-card { max-width: 920px; margin: 0 auto; }
+.rt-editor {
+  min-height: 240px;
+}
+
+.page-wrap--block-edit {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.page-wrap--block-edit .auth-card {
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.block-edit-hero {
+  margin-bottom: 24px;
+}
+
+.block-edit-card {
+  padding-top: 24px;
+}
+
+.page-wrap--block-edit .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.page-wrap--block-edit .page-header .btn-secondary {
+  flex-shrink: 0;
+}

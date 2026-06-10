@@ -1,0 +1,27 @@
+.page-hero,
+.card,
+.auth-card,
+.editor-card,
+.info-panel,
+.course-card,
+.lesson-card,
+.stat-card,
+.list-card,
+.program-card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,.65);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+.page-hero { padding: 28px; border-radius: var(--radius-xl); margin-bottom: 24px; }
+.page-hero__meta { color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.course-card, .lesson-card, .list-card, .stat-card, .card { border-radius: 24px; padding: 22px; }
+.auth-card, .editor-card, .info-panel, .program-card { border-radius: 28px; padding: 28px; }
+.auth-card { max-width: 740px; margin: 0 auto; }
+.auth-card--compact { max-width: 460px; }
+.program-card, .auth-card, .page-card, .module-card, .course-card, .editor-card { min-width: 0; max-width: 100%; overflow-x: hidden; }
+.content-card--flat { padding: 16px; border-radius: 20px; box-shadow: none; }
+@media (max-width: 820px) {
+  .page-hero, .card, .auth-card, .editor-card, .info-panel, .course-card, .lesson-card, .stat-card, .list-card, .program-card { padding: 20px; }
+}
+@media (max-width: 560px) { .page-hero { padding: 20px; } }

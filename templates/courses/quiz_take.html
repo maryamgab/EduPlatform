@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load quiz_extras %}
+{% block title %}{{ quiz.title }}{% endblock %}
+{% block content %}
+<div class="auth-card quiz-card">
+  <h1>{{ quiz.title }}</h1>
+  <p class="muted">Урок: {{ lesson.title }}</p>
+
+  <form method="post" class="auth-form quiz-form">
+    {% csrf_token %}
+
+    {% for q in questions %}
+      <div class="quiz-question">
+        <b class="quiz-question__title">{{ q.order }}. {{ q.prompt }}</b>
+
+        {% if q.type == "single" %}
+          <div class="quiz-options">
+            {% for c in q.choices.all %}
+              <label class="quiz-option">
+                <input type="radio" name="q{{ q.id }}" value="{{ c.id }}">
+                <span class="quiz-option__text">{{ c.text }}</span>
+              </label>
+            {% endfor %}
+          </div>
+
+        {% elif q.type == "multi" %}
+          <div class="quiz-options">
+            {% for c in q.choices.all %}
+              <label class="quiz-option">
+                <input type="checkbox" name="q{{ q.id }}" value="{{ c.id }}">
+                <span class="quiz-option__text">{{ c.text }}</span>
+              </label>
+            {% endfor %}
+          </div>
+
+        {% elif q.type == "text" %}
+          <input class="quiz-text-answer" type="text" name="q{{ q.id }}" placeholder="Введите ответ">
+
+        {% elif q.type == "match" %}
+          <div class="quiz-options">
+            {% for p in q.pairs.all %}
+              <div class="quiz-match-row">
+                <div><b>{{ p.left_text }}</b></div>
+                <div>
+                  <select name="q{{ q.id }}_p{{ p.id }}">
+                    <option value="">— выбрать —</option>
+                    {% for opt in match_options|get_item:q.id %}
+                      <option value="{{ opt }}">{{ opt }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button class="btn-primary" type="submit">Проверить</button>
+  </form>
+</div>
+{% endblock %}

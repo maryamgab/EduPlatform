@@ -1,0 +1,69 @@
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.profile-card {
+  margin: 0;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+}
+
+.checkbox-field label {
+  margin: 0;
+  flex: 1 1 auto;
+}
+
+.checkbox-field input[type="checkbox"] {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.deadlines-list {
+  width: 100%;
+}
+
+.deadline-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.deadline-row__content {
+  min-width: 0;
+  flex: 1 1 280px;
+}
+
+.deadline-row__course,
+.deadline-row__meta {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.deadline-row__badge-wrap {
+  flex: 0 0 auto;
+}
+
+.deadline-row__badge {
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .deadline-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .deadline-row__badge {
+    white-space: normal;
+  }
+}

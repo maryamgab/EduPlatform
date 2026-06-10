@@ -1,0 +1,95 @@
+
+.auth-form,
+.styled-form {
+  margin-top: 20px;
+  display: grid;
+  gap: 16px;
+}
+.field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.field label,
+label {
+  display: block;
+  font-size: .96rem;
+  color: #334155;
+  font-weight: 600;
+}
+.field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]),
+.field textarea,
+.field select,
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]),
+textarea,
+select {
+  width: 100%;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]),
+textarea,
+select {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(148,163,184,.35);
+  background: rgba(255,255,255,.94);
+  color: var(--text);
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):focus,
+textarea:focus,
+select:focus {
+  border-color: rgba(79,70,229,.42);
+  box-shadow: 0 0 0 4px rgba(79,70,229,.11);
+}
+input[type="checkbox"],
+input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  accent-color: var(--primary);
+}
+input[type="file"] {
+  padding: 10px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+textarea { min-height: 140px; resize: vertical; }
+.form-actions { margin-top: 10px; }
+.form-card {
+  border: 1px solid #e7e7ee;
+  border-radius: 12px;
+  padding: 10px;
+  margin: 8px 0;
+}
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(148,163,184,.35);
+  background: rgba(255,255,255,.94);
+}
+.checkbox-field__label { margin: 0; font-size: .96rem; color: #334155; font-weight: 600; }
+.checkbox-field input[type="checkbox"],
+.checkbox-inline input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--primary);
+  box-shadow: none;
+}
+.checkbox-inline { display: inline-flex; align-items: center; gap: 8px; }
+.checkbox-field-wrap { margin-bottom: 20px; }
+.form-field--compact { margin-bottom: 12px; }
+.form-field__meta { display: grid; gap: 6px; }

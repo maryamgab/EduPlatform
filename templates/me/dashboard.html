@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load progress_tags %}
+{% block title %}Личный кабинет{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <h1>Личный кабинет</h1>
+  <p class="muted">Здесь собраны курсы, которые вы проходите, и материалы, которые вы создаёте как автор.</p>
+</div>
+
+<div class="grid grid--stats dashboard-stats">
+  <div class="stat-card">
+    <p class="muted">Изучаю сейчас</p>
+    <h2>{{ learning|length }}</h2>
+  </div>
+  <div class="stat-card">
+    <p class="muted">Мои курсы</p>
+    <h2>{{ my_courses|length }}</h2>
+  </div>
+</div>
+
+<div class="grid grid--two">
+  <section class="list-card">
+    <div class="section-title">
+      <div>
+        <h2>Я прохожу</h2>
+        <p>Продолжайте обучение с последнего открытого курса.</p>
+      </div>
+    </div>
+
+    <div class="table-like">
+      {% for e in learning %}
+        {% course_progress e.course as p %}
+        <article class="table-row">
+          <div>
+            <strong><a class="dashboard-course-title" href="{% url 'course_detail' slug=e.course.slug %}">{{ e.course.title }}</a></strong>
+            <div class="muted dashboard-course-desc">{{ e.course.description|truncatechars:90 }}</div>
+            {% if p.total %}
+              <div class="progress dashboard-progress"><span class="progress__fill" data-progress-value="{{ p.percent }}"></span></div>
+              <div class="muted dashboard-course-desc">Пройдено {{ p.done }} из {{ p.total }}</div>
+            {% endif %}
+          </div>
+          <div>
+            {% if p.total %}
+              <span class="badge">{{ p.percent }}%</span>
+            {% else %}
+              <span class="badge badge--muted">Нет материалов</span>
+            {% endif %}
+          </div>
+        </article>
+      {% empty %}
+        <p class="muted">Вы пока не записаны ни на один курс.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="list-card">
+    <div class="section-title">
+      <div>
+        <h2>Мои курсы</h2>
+        <p>Управляйте своими курсами, модулями и уроками.</p>
+      </div>
+      <a class="nav-chip nav-chip--primary" href="{% url 'course_create' %}">+ Создать курс</a>
+    </div>
+
+    <div class="table-like">
+      {% for c in my_courses %}
+        <article class="table-row">
+          <div>
+            <strong><a class="dashboard-course-title" href="{% url 'course_edit' course_id=c.id %}">{{ c.title }}</a></strong>
+            <div class="muted dashboard-course-desc">{{ c.description|truncatechars:90 }}</div>
+          </div>
+          <div>
+            {% if c.is_private %}
+              <span class="badge badge--muted">Приватный</span>
+            {% elif c.is_published %}
+              <span class="badge badge--success">Публичный</span>
+            {% else %}
+              <span class="badge badge--warning">Черновик</span>
+            {% endif %}
+          </div>
+        </article>
+      {% empty %}
+        <p class="muted">Вы ещё не создали ни одного курса.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

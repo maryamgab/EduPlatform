@@ -1,0 +1,41 @@
+{% if block.type == "text" %}
+  <div class="block-text">{{ block.text|safe }}</div>
+
+{% elif block.type == "image" %}
+  {% if block.file %}
+    <img class="media-preview" src="{{ block.file.url }}">
+  {% elif block.url %}
+    <img class="media-preview" src="{{ block.url }}">
+  {% endif %}
+
+{% elif block.type == "gif" %}
+  {% if block.file %}
+    <img class="media-preview" src="{{ block.file.url }}">
+  {% elif block.url %}
+    <img class="media-preview" src="{{ block.url }}">
+  {% endif %}
+
+{% elif block.type == "audio" %}
+  {% if block.file %}
+    <audio controls class="media-player">
+      <source src="{{ block.file.url }}">
+    </audio>
+  {% elif block.url %}
+    <audio controls class="media-player">
+      <source src="{{ block.url }}">
+    </audio>
+  {% endif %}
+
+{% elif block.type == "video" %}
+  {% if block.file %}
+    <video controls class="media-player">
+      <source src="{{ block.file.url }}">
+      Ваш браузер не поддерживает видео.
+    </video>
+  {% elif block.url %}
+    <video controls class="media-player">
+      <source src="{{ block.url }}">
+      Ваш браузер не поддерживает видео.
+    </video>
+  {% endif %}
+{% endif %}

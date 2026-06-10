@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load progress_tags %}
+{% block title %}{{ course.title }}{% endblock %}
+{% block content %}
+{% course_progress course as p %}
+
+<div class="page-hero">
+  <div class="stack-between">
+    <div class="course-card__title">
+      <div class="course-avatar course-avatar--xl" data-avatar-color="{{ course.avatar_color|default:'#334155' }}">
+        {% if course.avatar %}
+          <img src="{{ course.avatar.url }}" alt="{{ course.title }}">
+        {% else %}
+          {{ course.title|first|upper }}
+        {% endif %}
+      </div>
+      <div>
+        <h1 class="course-longtext">{{ course.title }}</h1>
+        <div class="page-hero__meta">
+          <span>{{ course.modules.count }} модулей</span>
+          <span>{{ p.total }} шагов обучения</span>
+          {% if course.is_private %}<span>Приватный курс</span>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if user.is_authenticated and is_enrolled %}
+      <span class="badge">{{ p.percent }}% пройдено</span>
+    {% endif %}
+  </div>
+
+  <div class="course-detail__description course-longtext">{{ course.description|linebreaks }}</div>
+
+  <div class="course-detail__cta">
+    {% if user.is_authenticated %}
+      {% if is_enrolled %}
+        <div class="alert alert--success">Вы уже записаны на этот курс.</div>
+      {% else %}
+        <form method="post" action="{% url 'enroll' slug=course.slug %}">
+          {% csrf_token %}
+          <button type="submit" class="btn-primary">{% if course.is_private %}Записаться в приватный курс{% else %}Записаться бесплатно{% endif %}</button>
+        </form>
+      {% endif %}
+    {% else %}
+      {% if course.is_private %}
+        <div class="alert">Для записи в приватный курс сначала войдите в аккаунт.</div>
+      {% else %}
+        <div class="alert">Чтобы открыть уроки, <a href="{% url 'login' %}">войдите в аккаунт</a>.</div>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  {% if user.is_authenticated and is_enrolled %}
+    <div class="course-detail__progress">
+      <div class="progress"><span class="progress__fill" data-progress-value="{{ p.percent }}"></span></div>
+      <p class="muted course-card__progress-meta">{{ p.done }} / {{ p.total }} · уроки {{ p.lessons_done }}/{{ p.lessons_total }}, тесты {{ p.tests_done }}/{{ p.tests_total }}</p>
+    </div>
+  {% endif %}
+</div>
+
+<section class="list-card">
+  <div class="section-title">
+    <div>
+      <h2>Программа курса</h2>
+      <p>Каждый модуль раскрывается отдельно. Внутри — уроки, тесты и материалы.</p>
+    </div>
+  </div>
+
+  {% for m in course.modules.all %}
+    <div class="course-detail__module">
+      <h3>{{ m.order }}. {{ m.title }}</h3>
+      {% for l in m.lessons.all %}
+        <details class="details-card">
+          <summary>
+            {% if is_enrolled %}
+              <a class="lesson-summary-link {% if l.id in completed_lesson_ids %}lesson-summary-link--done{% endif %}" href="{% url 'lesson_detail' lesson_id=l.id %}">
+                <span class="lesson-summary-link__text">Урок {{ l.order }}: {{ l.title }}</span>
+              </a>
+            {% else %}
+              <span class="lesson-summary-link__text">Урок {{ l.order }}: {{ l.title }}</span>
+            {% endif %}
+          </summary>
+
+          {% if is_enrolled %}
+            <div class="details-card__body lesson-extra-info">
+              {% if l.quiz %}
+                <div class="lesson-extra-line">
+                  <span class="lesson-extra-label">Тест:</span>
+                  <a class="nav-chip {% if l.quiz.id in completed_quiz_ids %}nav-chip--success{% endif %}" href="{% url 'quiz_take' lesson_id=l.id %}">
+                    {{ l.quiz.title }}
+                  </a>
+                </div>
+              {% endif %}
+
+              {% for att in l.attachments.all %}
+                <div class="lesson-extra-line">
+                  <span class="lesson-extra-label">Файл:</span>
+                  <a class="nav-chip" href="{{ att.file.url }}">{{ att.title|default:att.file.name }}</a>
+                </div>
+              {% endfor %}
+
+              {% if not l.quiz and l.attachments.all|length == 0 %}
+                <span class="muted">Дополнительных материалов пока нет.</span>
+              {% endif %}
+            </div>
+          {% endif %}
+        </details>
+      {% empty %}
+        <p class="muted">В этом модуле пока нет уроков.</p>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

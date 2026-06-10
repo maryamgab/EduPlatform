@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load progress_tags %}
+{% block title %}{{ lesson.title }}{% endblock %}
+{% block content %}
+{% course_progress lesson.module.course as p %}
+
+<div class="page-hero">
+  <div class="section-title">
+    <div>
+      <p class="muted lesson-course-meta">{{ lesson.module.course.title }} · модуль {{ lesson.module.order }}</p>
+      <h1>{{ lesson.title }}</h1>
+    </div>
+    <span class="badge">{{ p.percent }}%</span>
+  </div>
+
+  <div class="progress"><span class="progress__fill" data-progress-value="{{ p.percent }}"></span></div>
+  <p class="muted lesson-progress__meta">Прогресс курса: {{ p.done }} / {{ p.total }} · уроки {{ p.lessons_done }}/{{ p.lessons_total }}, тесты {{ p.tests_done }}/{{ p.tests_total }}</p>
+</div>
+
+<section class="list-card">
+  <div class="section-title">
+    <div>
+      <h2>Контент урока</h2>
+      <p>Текст, медиа и дополнительные материалы собраны в одной ленте.</p>
+    </div>
+  </div>
+
+  <div class="content-stack">
+    {% for block in lesson.blocks.all %}
+      <div class="card content-card--flat">
+        {% include "courses/_block_render.html" with block=block %}
+      </div>
+    {% empty %}
+      <p class="muted">В этом уроке пока нет блоков.</p>
+    {% endfor %}
+  </div>
+
+  {% if lesson.attachments.all %}
+    <hr>
+    <h3>Файлы</h3>
+    <div class="file-list">
+      {% for a in lesson.attachments.all %}
+        <div class="file-item">
+          <span>{{ a.title|default:a.file.name }}</span>
+          <a class="nav-chip" href="{{ a.file.url }}" download>Скачать</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if quiz and quiz.is_published %}
+    <hr>
+
+    <div class="quiz-deadline-box">
+      {% if quiz.available_from %}
+        <p><b>Открыт с:</b> {{ quiz.available_from|date:"d.m.Y H:i" }}</p>
+      {% endif %}
+
+      {% if quiz.deadline %}
+        <p><b>Дедлайн:</b> {{ quiz.deadline|date:"d.m.Y H:i" }}</p>
+      {% endif %}
+
+      {% if quiz_access.is_not_opened %}
+        <p class="status-badge status-badge--muted">Тест ещё не открыт</p>
+      {% elif quiz_access.is_deadline_passed %}
+        <p class="status-badge status-badge--warning">
+          Дедлайн прошёл, но тест можно пройти — попытка будет отмечена как просроченная
+        </p>
+      {% else %}
+        <p class="status-badge status-badge--success">Тест доступен</p>
+      {% endif %}
+    </div>
+
+    <div class="actions-row">
+      {% if quiz_access.can_start %}
+        <a class="nav-chip nav-chip--primary" href="{% url 'quiz_take' lesson_id=lesson.id %}">
+          Пройти тест
+        </a>
+      {% else %}
+        <button type="button" class="nav-chip" disabled>Тест ещё не открыт</button>
+      {% endif %}
+
+      <a class="nav-chip" href="{% url 'quiz_attempts' lesson.id %}">Мои прошлые попытки</a>
+    </div>
+  {% endif %}
+
+  <hr>
+
+  {% if progress.is_completed %}
+    <div class="alert alert--success">Урок отмечен как пройденный.</div>
+  {% else %}
+    <form method="post" action="{% url 'complete_lesson' lesson_id=lesson.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn-primary">Отметить как пройденный</button>
+    </form>
+  {% endif %}
+</section>
+
+<div class="actions-row lesson-nav">
+  {% if prev_lesson %}
+    <a class="nav-chip" href="{% url 'lesson_detail' lesson_id=prev_lesson.id %}">← Предыдущий урок</a>
+  {% else %}
+    <span class="badge badge--muted">Это первый урок</span>
+  {% endif %}
+
+  {% if next_lesson %}
+    <a class="nav-chip nav-chip--primary" href="{% url 'lesson_detail' lesson_id=next_lesson.id %}">Следующий урок →</a>
+  {% else %}
+    <span class="badge badge--muted">Это последний урок</span>
+  {% endif %}
+</div>
+{% endblock %}

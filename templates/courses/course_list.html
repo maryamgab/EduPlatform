@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load progress_tags %}
+{% block title %}Курсы{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="section-title">
+    <div>
+      <h1>Каталог курсов</h1>
+      <p>Подберите публичный курс по теме, отсортируйте список и продолжайте обучение с того места, где остановились.</p>
+    </div>
+    <span class="badge">{{ courses|length }} курсов</span>
+  </div>
+
+  <form method="get">
+    <div class="filters">
+      <div class="field field--wide">
+        <label for="search-course">Поиск</label>
+        <input id="search-course" type="text" name="q" placeholder="Например: Python, алгебра, дизайн" value="{{ query }}">
+      </div>
+
+      <div class="field">
+        <label for="id_category">Категория</label>
+        <select name="category" id="id_category" data-category-select>
+          <option value="">Все категории</option>
+          {% for value, label in categories %}
+            <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="id_subcategory">Подкатегория</label>
+        <select name="subcategory" id="id_subcategory" data-subcategory-select data-selected="{{ selected_subcategory|default:'' }}">
+          <option value="">Сначала выберите категорию</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="id_sort">Сортировка</label>
+        <select name="sort" id="id_sort">
+          <option value="popular" {% if selected_sort == "popular" or not selected_sort %}selected{% endif %}>По популярности</option>
+          <option value="newest" {% if selected_sort == "newest" %}selected{% endif %}>Сначала новые</option>
+          <option value="oldest" {% if selected_sort == "oldest" %}selected{% endif %}>Сначала старые</option>
+          <option value="title_asc" {% if selected_sort == "title_asc" %}selected{% endif %}>По алфавиту: А → Я</option>
+          <option value="title_desc" {% if selected_sort == "title_desc" %}selected{% endif %}>По алфавиту: Я → А</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button type="submit" class="btn-primary">Показать курсы</button>
+      <a class="nav-chip btn-secondary" href="{% url 'course_list' %}">Сбросить фильтры</a>
+    </div>
+  </form>
+</div>
+
+<section class="list-card private-search-card">
+  <div class="section-title">
+    <div>
+      <h2>Вход в приватный курс</h2>
+      <p>Приватные курсы не показываются в общем каталоге. Введите код и пароль, которые дал автор курса.</p>
+    </div>
+    <span class="badge badge--muted">Приватный доступ</span>
+  </div>
+
+  <form method="post" action="{% url 'private_course_access' %}">
+    {% csrf_token %}
+    <div class="filters private-search-grid">
+      <div class="field">
+        <label for="private-access-code">Код курса</label>
+        <input id="private-access-code" type="text" name="access_code" placeholder="Например: AB12CD34" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="private-access-password">Пароль</label>
+        <input id="private-access-password" type="password" name="access_password" placeholder="Введите пароль курса">
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button type="submit" class="btn-primary">Открыть приватный курс</button>
+    </div>
+  </form>
+</section>
+
+{% if courses %}
+  <div class="grid grid--courses">
+    {% for course in courses %}
+      {% course_progress course as p %}
+      <article class="course-card">
+        <div class="course-card__top">
+          <div class="course-card__title">
+            <div class="course-avatar" data-avatar-color="{{ course.avatar_color|default:'#334155' }}">
+              {% if course.avatar %}
+                <img src="{{ course.avatar.url }}" alt="{{ course.title }}">
+              {% else %}
+                {{ course.title|first|upper }}
+              {% endif %}
+            </div>
+            <div>
+              <h3><a href="{% url 'course_detail' slug=course.slug %}">{{ course.title }}</a></h3>
+              <p class="muted">{{ course.category|default:"Без категории" }}{% if course.subcategory %} · {{ course.subcategory }}{% endif %}</p>
+            </div>
+          </div>
+
+          {% if p.is_enrolled %}
+            <span class="badge">{{ p.percent }}%</span>
+          {% endif %}
+        </div>
+
+        <p class="course-card__description">{{ course.description|truncatechars:150|default:"Описание курса появится позже." }}</p>
+
+        {% if p.is_enrolled %}
+          <div class="progress"><span class="progress__fill" data-progress-value="{{ p.percent }}"></span></div>
+          <p class="muted course-card__progress-meta">Уроки {{ p.lessons_done }}/{{ p.lessons_total }}, тесты {{ p.tests_done }}/{{ p.tests_total }}</p>
+        {% else %}
+          <div class="course-card__actions">
+            {% if request.user.is_authenticated %}
+              <form method="post" action="{% url 'enroll' slug=course.slug %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-primary course-card__enroll-btn">Записаться</button>
+              </form>
+            {% else %}
+              <a class="btn-primary course-card__enroll-btn" href="{% url 'login' %}?next={% url 'course_detail' slug=course.slug %}">Записаться</a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="info-panel">
+    <h3>Ничего не найдено</h3>
+    <p class="muted">Попробуйте изменить фильтры или очистить поиск.</p>
+  </div>
+{% endif %}
+{% endblock %}

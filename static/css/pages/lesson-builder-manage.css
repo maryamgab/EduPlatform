@@ -1,0 +1,19 @@
+.rt-block-card {
+  border: 1px solid rgba(148,163,184,.22);
+  background: rgba(255,255,255,.62);
+  border-radius: 22px;
+  padding: 18px;
+}
+
+.rt-block-card__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 760px) {
+  .rt-toolbar { gap: 6px; }
+  .rt-toolbar button { padding: 9px 12px; }
+}

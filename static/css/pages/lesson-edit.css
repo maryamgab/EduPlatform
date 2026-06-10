@@ -1,0 +1,23 @@
+.lesson-editor { max-width: 900px; }
+.lesson-editor__subtitle { margin-bottom: 0; }
+.lesson-editor__section-title { margin: 0; }
+.lesson-editor__section-title--spaced { margin: 0 0 10px; }
+.lesson-editor__blocks { display: flex; flex-direction: column; }
+.lesson-editor__add-row { margin-top: 12px; display: flex; gap: 10px; }
+.lesson-editor__hidden-field { display: none; }
+.lesson-content-card { padding: 16px; border-radius: 20px; box-shadow: none; }
+.lesson-nav { margin-top: 20px; }
+.lesson-nav.actions-row { justify-content: space-between; }
+.lesson-progress__meta,
+.lesson-course-meta { margin: 10px 0 0; }
+.lesson-course-meta { margin-bottom: 8px; }
+
+.page-hero .section-title > div:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.page-hero .section-title h1,
+.page-hero .section-title .lesson-course-meta {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}

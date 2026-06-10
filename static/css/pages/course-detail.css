@@ -1,0 +1,79 @@
+.course-detail__description,
+.course-detail__cta,
+.course-detail__progress,
+.course-detail__module { margin-top: 18px; }
+
+.course-detail__module h3,
+.course-detail__description,
+.course-detail__description p,
+.page-hero .course-card__title h1,
+.lesson-course-meta {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.page-hero .course-card__title h1 {
+  line-height: 1.15;
+  margin: 0;
+}
+
+.course-detail__description p {
+  margin: 0;
+}
+
+.lesson-summary-link {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
+
+.lesson-summary-link__text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-summary-link--done {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.lesson-extra-line .nav-chip--success,
+.lesson-summary-link--done {
+  background: rgba(15,159,103,.1);
+  border-radius: 999px;
+  padding: 8px 12px;
+}
+
+@media (max-width: 760px) {
+  .course-card__title,
+  .stack-between {
+    flex-direction: column;
+  }
+}
+
+
+.page-hero .course-card__title {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.page-hero .course-card__title > div:last-child,
+.page-hero .stack-between > div:first-child,
+.page-hero .section-title > div:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.page-hero h1,
+.lesson-course-meta {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.page-hero h1 {
+  max-width: 100%;
+}

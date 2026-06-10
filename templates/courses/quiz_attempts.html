@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Прошлые попытки{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/quiz-attempt-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="attempt-page">
+  <section class="attempt-hero">
+    <div class="attempt-hero__content">
+      <p class="attempt-hero__eyebrow">История прохождений</p>
+      <h1>Прошлые попытки</h1>
+      <p class="attempt-hero__text">
+        Здесь собраны все ваши попытки прохождения этого теста.
+      </p>
+    </div>
+
+    <a href="{% url 'lesson_detail' lesson.id %}" class="attempt-back-btn">← Назад к уроку</a>
+  </section>
+
+  {% if best_attempt %}
+    <section class="attempt-summary-card">
+      <div class="attempt-summary">
+        <div class="attempt-summary__item">
+          <span class="attempt-summary__label">Тест</span>
+          <div class="attempt-summary__value">{{ quiz.title }}</div>
+        </div>
+
+        <div class="attempt-summary__item">
+          <span class="attempt-summary__label">Лучший результат</span>
+          <div class="attempt-summary__value">{{ best_attempt.score }} / {{ best_attempt.max_score }}</div>
+        </div>
+
+        <div class="attempt-summary__item">
+          <span class="attempt-summary__label">Дата лучшей попытки</span>
+          <div class="attempt-summary__value">{{ best_attempt.created_at|date:"d.m.Y H:i" }}</div>
+        </div>
+      </div>
+
+      <div class="attempt-result-row">
+        <div class="attempt-score-badge">
+          Лучший результат: {{ best_attempt.score }} / {{ best_attempt.max_score }}
+        </div>
+
+        <div class="attempt-percent-badge attempt-percent-badge--{{ best_percent_level }}">
+          {{ best_percent }}%
+        </div>
+      </div>
+
+      <div class="attempt-progress">
+        <div class="attempt-progress__track">
+          <div
+            class="attempt-progress__fill attempt-progress__fill--{{ best_percent_level }}"
+            style="width: {{ best_percent }}%;"
+          ></div>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
+  <section class="attempt-answers">
+    {% for attempt in attempts %}
+      <article class="attempt-question-card">
+        <div class="attempt-question-card__head">
+          <div>
+            <p class="attempt-question-card__eyebrow">Попытка {{ forloop.counter }}</p>
+            <h3>{{ attempt.created_at|date:"d.m.Y H:i" }}</h3>
+          </div>
+
+          <div class="attempt-percent-badge attempt-percent-badge--{{ attempt.percent_level }}">
+            {{ attempt.percent_value }}%
+          </div>
+        </div>
+
+        <div class="attempt-result-row">
+          <div class="attempt-score-badge">
+            Результат: {{ attempt.score }} / {{ attempt.max_score }}
+          </div>
+
+          <a class="attempt-back-btn" href="{% url 'quiz_attempt_detail' attempt.id %}">
+            Открыть
+          </a>
+        </div>
+        {% if attempt.is_late %}
+          <div class="status-badge status-badge--warning">
+            Просрочено
+          </div>
+        {% endif %}
+
+        <div class="attempt-progress">
+          <div class="attempt-progress__track">
+            <div
+              class="attempt-progress__fill attempt-progress__fill--{{ attempt.percent_level }}"
+              style="width: {{ attempt.percent_value }}%;"
+            ></div>
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <div class="attempt-empty">
+        <h3>Попыток пока нет</h3>
+      </div>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}

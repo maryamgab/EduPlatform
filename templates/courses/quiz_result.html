@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load static %}
+{% load quiz_extras %}
+
+{% block title %}Результат{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/quiz-attempt-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="attempt-page">
+  <section class="attempt-hero">
+    <div class="attempt-hero__content">
+      <p class="attempt-hero__eyebrow">Результат теста</p>
+      <h1>Ваш результат</h1>
+      <p class="attempt-hero__text">
+        Здесь показаны баллы, процент выполнения и разбор ваших ответов.
+      </p>
+    </div>
+
+    <a href="{% url 'lesson_detail' lesson.id %}" class="attempt-back-btn">← Назад к уроку</a>
+  </section>
+
+  <section class="attempt-summary-card">
+    <div class="attempt-summary">
+      <div class="attempt-summary__item">
+        <span class="attempt-summary__label">Тест</span>
+        <div class="attempt-summary__value">{{ quiz.title }}</div>
+      </div>
+
+      <div class="attempt-summary__item">
+        <span class="attempt-summary__label">Дата</span>
+        <div class="attempt-summary__value">{{ attempt.created_at|date:"d.m.Y H:i" }}</div>
+      </div>
+
+      <div class="attempt-summary__item">
+        <span class="attempt-summary__label">Результат</span>
+        <div class="attempt-summary__value">{{ attempt.score }} / {{ attempt.max_score }}</div>
+      </div>
+
+      {% if attempt.is_late %}
+        <div class="status-badge status-badge--warning" style="margin-top:12px;">
+          Попытка отправлена после дедлайна
+        </div>
+      {% endif %}
+
+    </div>
+
+    <div class="attempt-result-row">
+      <div class="attempt-score-badge">
+        Результат: {{ attempt.score }} / {{ attempt.max_score }}
+      </div>
+
+      <div class="attempt-percent-badge attempt-percent-badge--{{ percent_level }}">
+        {{ percent }}%
+      </div>
+    </div>
+
+    <div class="attempt-progress">
+      <div class="attempt-progress__track">
+        <div
+          class="attempt-progress__fill attempt-progress__fill--{{ percent_level }}"
+          style="width: {{ percent }}%;"
+        ></div>
+      </div>
+    </div>
+  </section>
+
+  {% if quiz.show_correct_answers %}
+    <section class="attempt-answers">
+      {% for ans in answers %}
+        <article class="attempt-question-card">
+          <div class="attempt-question-card__head">
+            <div>
+              <p class="attempt-question-card__eyebrow">Вопрос {{ ans.question.order }}</p>
+              <h3>{{ ans.question.prompt }}</h3>
+            </div>
+
+            <div class="attempt-question-status {% if ans.is_correct %}attempt-question-status--ok{% else %}attempt-question-status--bad{% endif %}">
+              {% if ans.is_correct %}Верно{% else %}Есть ошибки{% endif %}
+            </div>
+          </div>
+
+          <div class="attempt-points">
+            Баллы: {{ ans.earned_points }} / {{ ans.question.points }}
+          </div>
+
+          <div class="attempt-answer-grid">
+            <div class="attempt-answer-box">
+              <h4>Ваш ответ</h4>
+
+              {% if ans.question.type == "single" or ans.question.type == "multi" %}
+                {% if ans.selected_choices.all %}
+                  <ul>
+                    {% for c in ans.selected_choices.all %}
+                      <li>{{ c.text }}</li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="muted">Нет ответа</p>
+                {% endif %}
+
+              {% elif ans.question.type == "text" %}
+                {% if ans.text_value %}
+                  <p>{{ ans.text_value }}</p>
+                {% else %}
+                  <p class="muted">Нет ответа</p>
+                {% endif %}
+
+              {% elif ans.question.type == "match" %}
+                <ul>
+                  {% for p in ans.question.pairs.all %}
+                    {% with chosen=ans.match_map|get_item:p.id %}
+                      <li>{{ p.left_text }} → {% if chosen %}{{ chosen }}{% else %}—{% endif %}</li>
+                    {% endwith %}
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+
+            <div class="attempt-answer-box">
+              <h4>Правильные варианты</h4>
+
+              {% if ans.question.type == "single" or ans.question.type == "multi" %}
+                <ul>
+                  {% for c in ans.question.choices.all %}
+                    {% if c.is_correct %}
+                      <li>{{ c.text }}</li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+
+              {% elif ans.question.type == "text" %}
+                {% if ans.question.correct_text %}
+                  <p>{{ ans.question.correct_text }}</p>
+                {% else %}
+                  <p class="muted">Нет правильного ответа</p>
+                {% endif %}
+
+              {% elif ans.question.type == "match" %}
+                <ul>
+                  {% for p in ans.question.pairs.all %}
+                    <li>{{ p.left_text }} → {{ p.right_text }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          </div>
+        </article>
+      {% empty %}
+        <div class="attempt-empty">
+          <h3>Нет данных для отображения</h3>
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
+</div>
+{% endblock %}

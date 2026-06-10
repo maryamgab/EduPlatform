@@ -1,0 +1,12 @@
+{% if field %}
+  <div class="field{% if wrapper_class %} {{ wrapper_class }}{% endif %}">
+    {% if label %}
+      <label{% if field.id_for_label %} for="{{ field.id_for_label }}"{% endif %}>{{ label }}</label>
+    {% elif not hide_label %}
+      {{ field.label_tag }}
+    {% endif %}
+    {{ field }}
+    {% if field.errors %}<div class="err">{{ field.errors }}</div>{% endif %}
+    {% if help_text %}<div class="muted">{{ help_text }}</div>{% endif %}
+  </div>
+{% endif %}

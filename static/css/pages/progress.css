@@ -1,0 +1,11 @@
+.progress-page { display: grid; gap: 20px; }
+.progress-table-wrap { overflow-x: auto; }
+.progress-table { width: 100%; border-collapse: collapse; }
+.progress-table th,
+.progress-table td { padding: 12px 14px; border-bottom: 1px solid rgba(148,163,184,.22); text-align: left; vertical-align: middle; }
+.progress-table td:last-child { min-width: 220px; }
+.progress-percent { margin-bottom: 6px; }
+
+
+.progress-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.progress-student-meta { display: grid; gap: 4px; }

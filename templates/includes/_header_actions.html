@@ -1,0 +1,18 @@
+<div class="page-header__actions{% if wrapper_class %} {{ wrapper_class }}{% endif %}">
+  {% if link_url and link_label %}
+    <a class="nav-chip{% if link_class %} {{ link_class }}{% endif %}" href="{{ link_url }}">{{ link_label }}</a>
+  {% endif %}
+
+  {% if delete_action %}
+    <form method="post" action="{{ delete_action }}" class="inline-form">
+      {% csrf_token %}
+      <button
+        type="submit"
+        class="icon-button icon-button--danger"
+        title="{{ delete_title|default:'Удалить' }}"
+        aria-label="{{ delete_title|default:'Удалить' }}"
+        onclick="return confirm('{{ delete_confirm }}')"
+      >🗑</button>
+    </form>
+  {% endif %}
+</div>

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-card" style="max-width:720px;">
+  <h1>Добавить вопрос</h1>
+
+  <form method="post" class="auth-form" id="question-form">
+    {% csrf_token %}
+
+    <div class="field">
+      {{ form.order.label_tag }}
+      {{ form.order }}
+      {% if form.order.errors %}<div class="err">{{ form.order.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      {{ form.type.label_tag }}
+      {{ form.type }}
+      {% if form.type.errors %}<div class="err">{{ form.type.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      {{ form.prompt.label_tag }}
+      {{ form.prompt }}
+      {% if form.prompt.errors %}<div class="err">{{ form.prompt.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      {{ form.points.label_tag }}
+      {{ form.points }}
+      {% if form.points.errors %}<div class="err">{{ form.points.errors }}</div>{% endif %}
+    </div>
+
+    <div class="js-text-only">
+      <div class="field">
+        {{ form.correct_text.label_tag }}
+        {{ form.correct_text }}
+        {% if form.correct_text.errors %}<div class="err">{{ form.correct_text.errors }}</div>{% endif %}
+      </div>
+
+      <div class="field">
+        <div class="checkbox-field">
+          <label class="checkbox-field__label" for="{{ form.text_case_sensitive.id_for_label }}">
+            {{ form.text_case_sensitive.label }}
+          </label>
+          {{ form.text_case_sensitive }}
+        </div>
+        {% if form.text_case_sensitive.errors %}<div class="err">{{ form.text_case_sensitive.errors }}</div>{% endif %}
+      </div>
+    </div>
+
+    <button class="btn-primary" type="submit">Создать</button>
+  </form>
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById('question-form');
+  if (!form) return;
+
+  const typeSelect = form.querySelector('[name="type"]');
+  const textOnly = form.querySelector('.js-text-only');
+
+  function toggleTextFields() {
+    const isText = typeSelect && typeSelect.value === 'text';
+    if (textOnly) {
+      textOnly.style.display = isText ? '' : 'none';
+    }
+  }
+
+  if (typeSelect) {
+    typeSelect.addEventListener('change', toggleTextFields);
+    toggleTextFields();
+  }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-card" style="max-width:900px;">
+  <h1>Тест урока: {{ lesson.title }}</h1>
+
+  <form method="post" class="auth-form">
+    {% csrf_token %}
+
+    <div class="field">
+      {{ form.title.label_tag }}
+      {{ form.title }}
+      {% if form.title.errors %}<div class="err">{{ form.title.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      {{ form.available_from.label_tag }}
+      {{ form.available_from }}
+      {% if form.available_from.errors %}<div class="err">{{ form.available_from.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      {{ form.deadline.label_tag }}
+      {{ form.deadline }}
+      {% if form.deadline.errors %}<div class="err">{{ form.deadline.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      <div class="checkbox-field">
+        <label class="checkbox-field__label" for="{{ form.is_published.id_for_label }}">
+          {{ form.is_published.label }}
+        </label>
+        {{ form.is_published }}
+      </div>
+      {% if form.is_published.errors %}<div class="err">{{ form.is_published.errors }}</div>{% endif %}
+    </div>
+
+    <div class="field">
+      <div class="checkbox-field">
+        <label class="checkbox-field__label" for="{{ form.show_correct_answers.id_for_label }}">
+          {{ form.show_correct_answers.label }}
+        </label>
+        {{ form.show_correct_answers }}
+      </div>
+      {% if form.show_correct_answers.errors %}<div class="err">{{ form.show_correct_answers.errors }}</div>{% endif %}
+    </div>
+
+    <button class="btn-primary" type="submit">Сохранить тест</button>
+  </form>
+
+  <hr style="margin:18px 0; border:none; border-top:1px solid #e7e7ee;">
+
+  <a class="btn-primary" href="{% url 'question_create' quiz.id %}">+ Добавить вопрос</a>
+
+  <h2 style="margin-top:16px;">Вопросы</h2>
+  <ul>
+    {% for q in questions %}
+      <li>
+        #{{ q.order }} — {{ q.get_type_display }} — {{ q.prompt|truncatechars:60 }}
+        | <a href="{% url 'question_edit' q.id %}">редактировать</a>
+        | <form method="post" action="{% url 'question_delete' q.id %}" style="display:inline;">
+            {% csrf_token %}<button type="submit">удалить</button>
+          </form>
+      </li>
+    {% empty %}
+      <li class="muted">Пока нет вопросов</li>
+    {% endfor %}
+  </ul>
+  <p>
+    <a href="{% url 'quiz_students_results' lesson.id %}">Результаты учеников</a>
+  </p>
+</div>
+{% endblock %}
